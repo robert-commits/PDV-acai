@@ -1,0 +1,47 @@
+AÇAÍ OBRIGATÓRIO — PUSH REMOTO (AMBIENTE DE TESTES)
+
+O QUE ESTA VERSÃO FAZ
+- Mantém o PDV HTML e o service worker existentes.
+- Ao ativar notificações, autentica o aparelho anonimamente e cadastra o token FCM na coleção pushDevices.
+- Adiciona o botão “Enviar push remoto”, que dispara um teste para os aparelhos cadastrados.
+- O disparo é protegido: somente o UID liberado manualmente em Firestore > pushTestAdmins pode enviar.
+- Não altera Apps Script, Google Sheets ou repositório de produção.
+
+ANTES DE PUBLICAR
+1. Faça backup do repositório de TESTES e extraia este ZIP.
+2. Copie o conteúdo da pasta para a raiz do repositório GitHub Pages de TESTES, substituindo os arquivos de teste. Não use no repositório de produção.
+3. No Firebase Console do projeto acaiobrigatorio-9ae3f: Authentication > Sign-in method > habilite Anonymous.
+4. Crie/ative o Firestore Database (se já existir, não crie outro).
+5. Instale Node.js 20 e Firebase CLI em um computador: npm install -g firebase-tools
+6. No terminal, dentro desta pasta: firebase login
+7. Execute: firebase use acaiobrigatorio-9ae3f
+8. Execute: cd functions && npm install && cd ..
+9. Execute: firebase deploy --only functions
+
+ATENÇÃO SOBRE COBRANÇA
+O deploy de Cloud Functions normalmente exige que o projeto esteja no plano Blaze com faturamento vinculado. Configure alertas de orçamento no Google Cloud. O uso de teste pode ficar dentro de cotas, mas o vínculo de faturamento pode ser obrigatório.
+
+PRIMEIRO CADASTRO E AUTORIZAÇÃO
+1. Depois do deploy das funções e publicação do HTML, abra o PDV de TESTES no iPhone 14 Pro Max (PWA instalado).
+2. No painel, toque em “Ativar e testar”. A notificação local deve aparecer e o status deve dizer que o dispositivo foi cadastrado no backend, exibindo um UID.
+3. Copie somente o UID (não o token FCM). No Firebase Console > Firestore Database > Data, crie a coleção pushTestAdmins.
+4. Crie um documento cujo ID seja exatamente o UID exibido. Adicione o campo active (boolean) = true.
+5. Volte ao PDV e toque em “Enviar push remoto”. O teste deve alcançar todos os dispositivos ativos cadastrados na coleção pushDevices.
+
+COMO CADASTRAR OUTRO APARELHO
+Abra o PDV de testes no outro aparelho, instale como PWA no iPhone/iPad quando aplicável e toque em “Ativar e testar”. Cada aparelho cadastra seu próprio token. Depois, use o botão de envio remoto autorizado.
+
+SEGURANÇA E LIMITES
+- Nunca coloque service-account.json, private_key, chave privada VAPID ou credenciais administrativas no GitHub/HTML.
+- O token FCM é dado de registro de dispositivo: não publique nem envie em mensagens.
+- As funções usam Firebase Admin SDK no servidor; nenhuma chave privada é necessária no repositório.
+- As coleções pushDevices e pushTestAdmins são acessadas pelas funções via Admin SDK. Não crie regras Firestore permissivas.
+- Esta entrega é um teste manual. Ainda NÃO dispara notificações automaticamente em vendas ou pagamentos; isso será uma etapa posterior.
+- O push em iOS exige PWA instalado na Tela de Início, permissão concedida e versão compatível do iOS.
+- Se o Firebase Functions já tiver funções em produção neste projeto, confira a lista antes do deploy. O comando --only functions atualiza as funções deste pacote; não execute sem revisar as funções existentes.
+
+ARQUIVOS
+- index.html: PDV de teste com cadastro e botão de push remoto.
+- sw.js, manifest e ícones: recursos PWA mantidos.
+- functions/index.js: funções seguras registerDevice e sendTestPush.
+- firebase.json e .firebaserc: configuração do deploy apontando ao projeto Firebase indicado.
