@@ -1,0 +1,14 @@
+PDV AÇAÍ OBRIGATÓRIO — PACOTE DE TESTE V6.10.31
+
+Arquivos: index.html, firebase-messaging-sw.js, manifest.webmanifest e ícones SVG.
+
+PUBLICAÇÃO
+1. Extraia todos os arquivos mantendo-os na mesma pasta/raiz do GitHub Pages.
+2. Publique no repositório de TESTES, nunca no repositório de produção.
+3. Abra a URL publicada em HTTPS. No iPhone, abra no Safari e adicione à Tela de Início; abra o app instalado e toque em “Ativar notificações”.
+4. O token é gerado localmente e exibido no console do navegador; nesta entrega ainda não é enviado ao Apps Script nem armazenado centralmente.
+
+IMPORTANTE — ESCOPO DESTA ENTREGA
+Este pacote prepara o cliente PWA e Firebase Cloud Messaging, registra o service worker e solicita permissão/gera token por dispositivo. Notificações remotas entre dispositivos ainda NÃO estão concluídas: dependem do endpoint seguro de cadastro de tokens e do disparo no backend (Apps Script/FCM). Nenhuma alteração foi feita no Apps Script nem na planilha. Os recursos de encomendas, pagamentos parciais e lembretes também não foram implementados neste pacote-base.
+
+A URL centralizada do Apps Script existente no HTML foi preservada.
