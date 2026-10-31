@@ -1,0 +1,37 @@
+PDV AÇAÍ OBRIGATÓRIO — VERSÃO DE TESTE COM NOTIFICAÇÕES LOCAIS
+
+O QUE FOI ALTERADO
+- Removida a integração Firebase Cloud Messaging, Firebase Authentication e Firebase Functions.
+- Removidos arquivos de configuração/deploy de Firebase e a pasta functions.
+- Mantido o service worker do PDV, agora sem imports Firebase.
+- Mantido o botão de ativação e teste de notificação local.
+- Adicionado monitor de novos pedidos e pagamentos usando a leitura já existente do Apps Script.
+- O monitor consulta a base de testes a cada 60 segundos quando a página/PWA está visível e ativa.
+- Ao voltar para o PDV, uma consulta imediata procura eventos que ocorreram desde a última leitura.
+- O controle de eventos é salvo separadamente em cada aparelho para evitar alertas duplicados.
+- A imagem da marca foi extraída do HTML, otimizada para 640x640 e carregada como arquivo externo (logo.jpg), reduzindo bastante o peso do index.html.
+- O tema claro/escuro agora acompanha automaticamente a preferência de aparência do iPhone/iPad/computador; se o usuário mudar a aparência do sistema, o PDV acompanha sem precisar tocar em um botão.
+
+LIMITAÇÃO IMPORTANTE DO iOS
+Este pacote NÃO implementa Push remoto. Notificações locais só podem ser geradas quando o JavaScript do PDV está executando. iOS pode suspender a página/PWA ao minimizar, bloquear a tela ou trocar de aplicativo. Portanto, não há garantia de consulta nem de alerta no momento em que o aparelho está bloqueado. Quando o usuário voltar ao PDV, o monitor consulta novamente e pode exibir alertas atrasados dos novos pedidos/pagamentos detectados.
+A permissão concedida normalmente fica salva por aparelho/origem até o usuário alterá-la nas configurações, mas isso NÃO mantém o monitor executando em segundo plano.
+
+EVENTOS MONITORADOS
+- Novo pedido/venda (inclui pedido marcado como encomenda no módulo Pedidos).
+- Aumento do valor pago / pagamento confirmado, inclusive pagamento individual de grupo corporativo.
+
+COMO TESTAR
+1. Publique SOMENTE no repositório GitHub Pages de TESTES.
+2. Abra o PDV instalado na Tela de Início do iPhone/iPad e faça login.
+3. Aguarde a primeira sincronização com a planilha de testes.
+4. O tema será escolhido automaticamente conforme a aparência do dispositivo. Na Home, toque em “Ativar e testar”. Autorize as notificações e confirme o alerta local de teste.
+5. Deixe o PDV aberto em primeiro plano para o monitor consultar a planilha a cada 60 segundos.
+6. Gere um pedido de teste por outro aparelho/PDV e aguarde a próxima consulta.
+7. Para simular o bloqueio: bloqueie/saia do PDV, crie um evento de teste e depois volte ao PDV. O alerta poderá aparecer somente depois que o aplicativo voltar a executar.
+
+IMPORTANTE
+- Não substitua o Apps Script de produção.
+- Este pacote não altera o Apps Script; utiliza a ação de leitura já existente (action=read) e o token de sessão do PDV.
+- A consulta usa o snapshot de dados existente, sem modificar automaticamente a tela do PDV nem reativar o refresh visual periódico.
+- A permissão de notificação deve ser autorizada separadamente em cada aparelho.
+- Este pacote é de TESTES. Não publicar na produção antes da validação.

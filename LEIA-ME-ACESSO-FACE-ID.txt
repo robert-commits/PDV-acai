@@ -1,0 +1,25 @@
+PDV AÇAÍ OBRIGATÓRIO — MELHORIA DE AUTOPREENCHIMENTO NO iOS
+
+O que foi alterado
+- O formulário de login agora está marcado semanticamente como formulário de credenciais.
+- Campo de usuário técnico estável para permitir que o gerenciador de senhas associe a senha ao site.
+- Campo de senha usa name="password" e autocomplete="current-password".
+- O envio do formulário continua chamando a autenticação atual do PDV.
+
+Como usar no iPhone/iPad
+1. Publique os arquivos do ZIP no mesmo domínio/endereço HTTPS que você já usa.
+2. Abra o PDV no Safari e entre digitando a senha normalmente.
+3. Quando o iOS oferecer salvar/atualizar a senha, aceite. Se não oferecer, salve manualmente em Ajustes > Senhas, associando ao domínio exato do PDV.
+4. Nos próximos acessos, toque no campo de senha e escolha a credencial sugerida. O Face ID/Touch ID autoriza o preenchimento, conforme as configurações do aparelho.
+
+Limitações importantes
+- Isto NÃO implementa passkeys/WebAuthn e não transforma o Face ID em autenticação direta do PDV.
+- O Face ID autoriza o preenchimento de uma senha armazenada pelo iCloud Keychain; a senha continua sendo validada pelo Apps Script como antes.
+- O iOS/Safari decide quando mostrar a sugestão de preenchimento. Não é possível forçar o Face ID a aparecer automaticamente ao abrir a página.
+- A senha continua sendo uma alternativa normal.
+- Nenhuma alteração foi feita no Apps Script (.gs), na planilha, no banco ou nas notificações.
+
+Publicação
+- Substitua os arquivos do site pelos arquivos deste pacote, mantendo-os no mesmo diretório raiz.
+- Não cole nem publique este README no site se não quiser; ele é apenas instrução.
+- Faça primeiro um teste em uma cópia/ambiente de teste. O HTML não foi testado em um dispositivo iOS real nesta execução.
