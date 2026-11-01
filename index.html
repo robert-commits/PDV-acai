@@ -1575,26 +1575,81 @@ function startPDVNotificationMonitor(){
 }
 function stopPDVNotificationMonitor(){if(notificationMonitorTimer){clearInterval(notificationMonitorTimer);notificationMonitorTimer=null;}}
 async function activateNotificationTest(){
- const status=document.getElementById('dashNotificationStatus'),button=document.getElementById('dashNotificationButton');
+ const status=document.getElementById('dashNotificationStatus');
+ const button=document.getElementById('dashNotificationButton');
  const setStatus=t=>{if(status)status.textContent=t;};
- if(!('serviceWorker' in navigator)||!('Notification' in window)){setStatus('Este navegador não oferece suporte a notificações locais.');toast('Notificações não suportadas neste navegador.');return;}
- if(!window.isSecureContext){setStatus('É necessário abrir o PDV por HTTPS.');return;}
+
+ if(!('serviceWorker' in navigator)||!('Notification' in window)){
+  setStatus('Este navegador não oferece suporte a notificações.');
+  toast('Notificações não suportadas.');
+  return;
+ }
+
+ if(!window.isSecureContext){
+  setStatus('É necessário abrir o PDV por HTTPS.');
+  return;
+ }
+
  if(button)button.disabled=true;
- setStatus('Solicitando permissão para notificações...');
+
  try{
-  const permission=Notification.permission==='default'?await Notification.requestPermission():Notification.permission;
-  if(permission!=='granted'){setStatus(permission==='denied'?'Permissão bloqueada. Altere em Ajustes do iPhone/iPad.':'Permissão ainda não concedida.');toast('Permita notificações para continuar.');return;}
+  setStatus('Conectando ao OneSignal...');
+
+  if(!window._acaiOneSignalReady){
+   throw new Error('Configuração OneSignal não encontrada. Verifique o código no head.');
+  }
+
+  const result=await window._acaiOneSignalReady;
+
+  if(!result.ok){
+   throw result.error || new Error('Falha ao inicializar OneSignal.');
+  }
+
+  const OneSignal=result.OneSignal;
+
+  await OneSignal.User.PushSubscription.optIn();
+
+  const permission=Notification.permission==='default'
+   ? await Notification.requestPermission()
+   : Notification.permission;
+
+  if(permission!=='granted'){
+   setStatus('Permissão não concedida. Verifique os ajustes do aparelho.');
+   toast('Permita notificações para continuar.');
+   return;
+  }
+
   await navigator.serviceWorker.register('./sw.js',{scope:'./'});
   notificationServiceWorker=await navigator.serviceWorker.ready;
-  if(!notificationServiceWorker||!notificationServiceWorker.active)throw new Error('O service worker ainda não está ativo. Feche e reabra o PDV e tente novamente.');
+
+  if(!notificationServiceWorker||!notificationServiceWorker.active){
+   throw new Error('Service Worker ainda não está ativo.');
+  }
+
   ensureNotificationBaseline();
-  await showLocalPDVNotification('Açaí Obrigatório · PDV','Teste local recebido! Este aparelho está autorizado a exibir notificações.','acai-obrigatorio-local-test-'+Date.now());
-  try{localStorage.setItem('acai_pdv_notification_permission','granted');}catch(e){}
+
+  await showLocalPDVNotification(
+   'Açaí Obrigatório · PDV',
+   'Teste local recebido! OneSignal foi inicializado neste aparelho.',
+   'acai-obrigatorio-onesignal-test-'+Date.now()
+  );
+
+  try{
+   localStorage.setItem('acai_pdv_notification_permission','granted');
+  }catch(e){}
+
   startPDVNotificationMonitor();
-  setStatus('Permissão concedida. Monitoramento a cada 60 segundos enquanto o PDV estiver aberto e ativo.');
-  toast('Notificação local de teste enviada.');
- }catch(e){console.warn('Notification test',e);setStatus('Não foi possível concluir o teste: '+(e?.message||'erro desconhecido'));toast('Falha ao ativar notificações.');}
- finally{if(button)button.disabled=false;}
+
+  setStatus('OneSignal conectado. Teste local enviado. Verifique a inscrição no painel OneSignal.');
+  toast('Teste de notificações concluído.');
+
+ }catch(e){
+  console.warn('Erro na ativação OneSignal:',e);
+  setStatus('Falha na ativação: '+(e?.message||'erro desconhecido'));
+  toast('Não foi possível ativar as notificações.');
+ }finally{
+  if(button)button.disabled=false;
+ }
 }
 function refreshNotificationStatus(){
  const status=document.getElementById('dashNotificationStatus');if(!status)return;
